@@ -11,7 +11,7 @@ contract Deployed {
     function tokenOfOwnerByIndex(address user, uint256 id) public view returns (uint256) {}
 }
 
-contract contractMint is IERC721Receiver, Ownable {
+contract ContractMint is IERC721Receiver, Ownable {
     Deployed dc;
     address target;
     uint256 public MAX_SUPPLY;
@@ -73,14 +73,14 @@ contract contractMint is IERC721Receiver, Ownable {
     }
 }
 
-contract mintFactory is Ownable {
-    contractMint[] public _mint;
+contract MintFactory is Ownable {
+    ContractMint[] public _mint;
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant NFT_PRICE = 0.001 ether;
     uint256 public constant MAX_PER_WALLET = 2;
 
     function createMint(address _t) external payable {
-        contractMint mintContract = new contractMint{value: (MAX_PER_WALLET + 1) * NFT_PRICE}(
+        ContractMint mintContract = new ContractMint{value: (MAX_PER_WALLET + 1) * NFT_PRICE}(
             _t,
             MAX_SUPPLY,
             NFT_PRICE,
@@ -107,5 +107,15 @@ contract mintFactory is Ownable {
             _mint[i].withdraw(recipient);
             _mint[i].withdrawNFT(recipient);
         }
+    }
+
+    function deleteMintArray() external onlyOwner {
+        for (uint256 i = 0; i < _mint.length; ) {
+            _mint.pop();
+        }
+    }
+
+    function getContractMint() public view returns (ContractMint[] memory) {
+        return _mint;
     }
 }
